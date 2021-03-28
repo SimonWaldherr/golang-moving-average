@@ -1,9 +1,9 @@
-# golang-moving-average  [![Build Status](https://travis-ci.org/RobinUS2/golang-moving-average.svg?branch=master)](https://travis-ci.org/RobinUS2/golang-moving-average)
-Moving average implementation for Go. View [the documentation](https://godoc.org/github.com/RobinUS2/golang-moving-average).
+# golang-moving-average
+Moving average implementation for Go. View [the documentation](https://godoc.org/github.com/SimonWaldherr/golang-moving-average).
 
 ## Usage 
 ```
-import "github.com/RobinUS2/golang-moving-average"
+import "github.com/SimonWaldherr/golang-moving-average"
 
 ma := movingaverage.New(5) // 5 is the window size
 ma.Add(10)

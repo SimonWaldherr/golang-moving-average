@@ -3,6 +3,7 @@ package movingaverage
 import (
 	"errors"
 	"math"
+	"sort"
 )
 
 // @author Robin Verlangen
@@ -27,9 +28,9 @@ func (ma *MovingAverage) SetIgnoreNanValues(ignoreNanValues bool) {
 	ma.ignoreNanValues = ignoreNanValues
 }
 
-func (ma *MovingAverage) Avg() float64 {
+func (ma *MovingAverage) Arithmetic() float64 {
 	var sum = float64(0)
-	values := ma.filledValues()
+	values := ma.FilledValues()
 	if values == nil {
 		return 0
 	}
@@ -38,12 +39,37 @@ func (ma *MovingAverage) Avg() float64 {
 		sum += value
 	}
 
-	// Finalize average and return
 	avg := sum / float64(n)
 	return avg
 }
 
-func (ma *MovingAverage) filledValues() []float64 {
+func (ma *MovingAverage) Avg() float64 {
+	return ma.Arithmetic()
+}
+
+func (ma *MovingAverage) Median() float64 {
+	values := ma.FilledValues()
+	c := len(values)
+
+	sort.Float64s(values)
+	if c%2 == 1 {
+		return values[c/2]
+	}
+	return (values[c/2] + values[c/2-1]) / 2
+}
+
+func (ma *MovingAverage) Geometric() float64 {
+	values := ma.FilledValues()
+	c := len(values)
+
+	var m float64 = 1
+	for _, value := range values {
+		m = m * value
+	}
+	return math.Pow(m, 1/float64(c))
+}
+
+func (ma *MovingAverage) FilledValues() []float64 {
 	var c = ma.Window - 1
 
 	// Are all slots filled? If not, ignore unused
@@ -87,16 +113,29 @@ func (ma *MovingAverage) SlotsFilled() bool {
 }
 
 func (ma *MovingAverage) Values() []float64 {
-	return ma.filledValues()
+	return ma.FilledValues()
 }
 
 func (ma *MovingAverage) Count() int {
 	return len(ma.Values())
 }
 
+func (ma *MovingAverage) Sum() float64 {
+	var sum float64
+	values := ma.FilledValues()
+	if values == nil {
+		return 0
+	}
+
+	for _, value := range values {
+		sum += value
+	}
+	return sum
+}
+
 func (ma *MovingAverage) Max() (float64, error) {
 	best := math.MaxFloat64 * -1
-	values := ma.filledValues()
+	values := ma.FilledValues()
 	if values == nil {
 		return 0, errNoValues
 	}
@@ -113,7 +152,7 @@ func (ma *MovingAverage) Min() (float64, error) {
 		return 0, errNoValues
 	}
 	best := math.MaxFloat64
-	values := ma.filledValues()
+	values := ma.FilledValues()
 	for _, value := range values {
 		if value < best {
 			best = value
